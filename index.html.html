@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CodeLab — Non-Binary Codes & Error Control</title>
+<style>
+:root{--ink:#182b3a;--muted:#617382;--bg:#f3f7f7;--panel:#fff;--line:#dce7e6;--teal:#087f8c;--teal2:#12a6a0;--coral:#f07c62;--gold:#f2b84b;--violet:#7866c8;--green:#24865d;--shadow:0 12px 35px #18374412}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif}
+header{height:72px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 5vw;position:sticky;top:0;z-index:5}
+.brand{display:flex;align-items:center;gap:12px;font-weight:800;font-size:20px;letter-spacing:-.5px}.logo{width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,var(--teal),#62c9b6);display:grid;place-items:center;color:#fff;font-weight:900;box-shadow:0 6px 15px #087f8c35}
+nav{display:flex;gap:24px;color:var(--muted);font-size:13px}nav a{color:inherit;text-decoration:none}nav a:hover{color:var(--teal)}
+.wrap{max-width:1380px;margin:auto;padding:30px 4vw 70px}.hero{background:linear-gradient(120deg,#123b4a,#087f8c 65%,#23a99e);color:white;border-radius:24px;padding:36px 40px;display:flex;justify-content:space-between;gap:25px;align-items:center;box-shadow:var(--shadow);overflow:hidden;position:relative}
+.eyebrow{text-transform:uppercase;letter-spacing:2px;font-size:11px;font-weight:800;color:#b8eee5}.hero h1{font-size:clamp(28px,4vw,43px);line-height:1.12;margin:12px 0}.hero p{max-width:680px;color:#d7f0ed;margin:0}.hero-art{font-size:68px;opacity:.9;min-width:160px;text-align:center}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}.pill{border:1px solid #ffffff50;border-radius:30px;padding:6px 12px;font-size:12px;color:#efffff;background:#ffffff12}
+.layout{display:grid;grid-template-columns:270px minmax(0,1fr);gap:24px;margin-top:26px}.sidebar,.content-card,.module-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}
+.sidebar{padding:18px;height:max-content;position:sticky;top:92px}.side-title{font-size:11px;font-weight:800;letter-spacing:1.4px;color:#8a9aa4;margin:3px 8px 12px}.search{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;margin-bottom:17px;font:inherit;outline-color:var(--teal)}
+.group{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#8a9aa4;margin:18px 8px 7px;font-weight:800}.navitem{width:100%;border:0;background:transparent;text-align:left;padding:10px 11px;border-radius:10px;color:#526574;cursor:pointer;font:600 13px inherit;display:flex;align-items:center;gap:10px}.navitem:hover{background:#edf7f6}.navitem.active{background:#e2f4f1;color:#076d76;box-shadow:inset 3px 0 var(--teal)}.dot{width:8px;height:8px;border-radius:50%;background:var(--teal2)}
+.content-card{padding:26px}.module-head{display:flex;justify-content:space-between;gap:15px;align-items:flex-start}.kicker{color:var(--teal);font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase}.module-head h2{margin:5px 0 4px;font-size:27px;letter-spacing:-.7px}.desc{color:var(--muted);margin:0;max-width:800px}.tag{background:#fff2df;color:#98600d;border-radius:30px;padding:6px 11px;font-size:11px;font-weight:800;white-space:nowrap}
+.tabs{display:flex;gap:8px;border-bottom:1px solid var(--line);margin:22px 0 20px;padding-bottom:10px;flex-wrap:wrap}.tab{border:0;background:transparent;padding:8px 13px;border-radius:9px;color:var(--muted);font-weight:700;cursor:pointer}.tab.active{background:#e5f4f2;color:var(--teal)}
+.workspace{display:grid;grid-template-columns:minmax(260px,.85fr) minmax(0,1.15fr);gap:18px}.box{border:1px solid var(--line);border-radius:15px;padding:18px;background:#fbfdfd}.box h3{font-size:14px;margin:0 0 14px}.field{margin:12px 0}.field label{display:block;font-size:12px;font-weight:750;color:#536977;margin-bottom:6px}.field input,.field select{width:100%;padding:11px 12px;border:1px solid #d5e2e1;border-radius:9px;background:#fff;font:14px ui-monospace,monospace;color:var(--ink);outline-color:var(--teal)}.hint{font-size:11px;color:#81919a;margin-top:5px}.btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}.btn{border:0;border-radius:9px;padding:10px 15px;font-weight:750;cursor:pointer;background:var(--teal);color:#fff}.btn.secondary{background:#e8f2f1;color:#176b72}.btn.ghost{background:#fff;border:1px solid var(--line);color:#536977}.btn:disabled{opacity:.4;cursor:not-allowed}
+.result{background:#f6faf9;border:1px solid var(--line);border-radius:13px;padding:15px;margin-bottom:14px}.result-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#81919a;font-weight:800}.result-value{font:700 20px ui-monospace,monospace;color:#087f8c;overflow-wrap:anywhere;margin-top:5px}
+.steps{display:grid;gap:9px}.step{display:flex;gap:12px;padding:11px 12px;background:#fff;border:1px solid var(--line);border-radius:11px;align-items:flex-start}.stepnum{width:25px;height:25px;border-radius:8px;background:#e2f4f1;color:var(--teal);display:grid;place-items:center;font-size:12px;font-weight:900;flex:none}.step p{margin:1px 0 0;color:#506573;font-size:13px}.step.current{border-color:var(--teal2);background:#eaf9f6;box-shadow:0 0 0 2px #12a6a01a}.step.current .stepnum{background:var(--teal);color:#fff}.visual{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}.bit{min-width:32px;height:38px;border-radius:8px;display:grid;place-items:center;background:#e7f0f1;border:1px solid #d4e1e1;font:800 14px ui-monospace,monospace}.bit.hot{background:#ffeadf;border-color:#f6b39c;color:#a9472e}.bit.good{background:#ddf4e8;border-color:#a6dfbd;color:#176b45}
+.note{background:#fff8e9;border:1px solid #f4dfb2;border-radius:12px;padding:12px 14px;color:#77591e;font-size:12px;margin-top:15px}.hidden{display:none!important}
+.module-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:24px}.module-card{padding:17px;cursor:pointer;transition:.2s}.module-card:hover{transform:translateY(-3px);border-color:#77c9c0}.module-card .ico{width:38px;height:38px;border-radius:12px;background:#e4f4f1;color:var(--teal);display:grid;place-items:center;font-size:19px}.module-card h3{font-size:14px;margin:12px 0 5px}.module-card p{font-size:12px;color:var(--muted);margin:0}.section-title{margin:30px 0 10px;font-size:18px}
+footer{padding:28px 5vw;background:#153b49;color:#d6e8e7;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;font-size:12px}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.sidebar{position:static}.workspace{grid-template-columns:1fr}.module-grid{grid-template-columns:repeat(2,1fr)}nav{display:none}.hero-art{display:none}}
+@media(max-width:560px){.wrap{padding:18px 4vw 45px}.hero{padding:25px}.content-card{padding:17px}.module-grid{grid-template-columns:1fr}.module-head{display:block}.tag{display:inline-block;margin-top:10px}}
+
+.diagram-panel{margin:14px 0 16px;padding:15px;border:1px solid #cfe1df;border-radius:14px;background:linear-gradient(145deg,#f7fcfb,#eef7f6);overflow:hidden}
+.diagram-title{font-size:11px;font-weight:850;letter-spacing:1.2px;text-transform:uppercase;color:#087f8c;margin-bottom:11px}
+.diagram-caption{font-size:12px;color:#617782;margin-top:9px}
+.bitrow{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.dbit{width:34px;height:38px;border-radius:8px;background:#e2ecee;border:1px solid #cadadc;display:grid;place-items:center;font:800 14px ui-monospace,monospace;position:relative;animation:popIn .28s ease both}
+.dbit.parity{background:#e9e5fb;border-color:#c9baf5;color:#5e4aa9}
+.dbit.error{background:#ffe4dc;border-color:#f3a18d;color:#a43f28;animation:pulseError .8s ease-in-out infinite alternate}
+.dbit.fixed{background:#ddf4e8;border-color:#9dd8b5;color:#176b45}
+.dbit small{position:absolute;top:-15px;font:9px ui-sans-serif;color:#82939a}
+.xor-flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0}
+.xor-gate{width:58px;height:48px;border:2px solid #e58b4f;border-radius:45% 48% 48% 45%;display:grid;place-items:center;background:#fff5ec;color:#a85a20;font-weight:900;font-size:16px;position:relative}
+.xor-gate:before{content:"";position:absolute;left:-6px;top:4px;bottom:4px;width:12px;border-left:2px solid #e58b4f;border-radius:50%}
+.wire{height:2px;width:24px;background:#a9bec1}
+.crc-stage{padding:10px 12px;background:white;border:1px solid #d9e6e5;border-radius:10px;margin:8px 0;animation:slideIn .35s ease both}
+.crc-stage strong{font-size:11px;color:#637780;display:block;margin-bottom:6px}
+.crc-row{font:700 13px ui-monospace,monospace;letter-spacing:2px;white-space:pre-wrap;overflow-wrap:anywhere}
+.crc-row .changed{color:#bd5a32;background:#fff0e9;border-radius:4px}
+.parity-legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:#627681;margin-top:10px}
+.parity-legend span:before{content:"";display:inline-block;width:9px;height:9px;border-radius:3px;background:#e9e5fb;margin-right:5px}
+.parity-legend .err:before{background:#ffe4dc}.parity-legend .ok:before{background:#ddf4e8}
+@keyframes popIn{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes slideIn{from{transform:translateX(12px);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes pulseError{from{box-shadow:0 0 0 0 #f3a18d55}to{box-shadow:0 0 0 5px #f3a18d22}}
+
+
+.python-shell{margin-top:12px;border:1px solid #cfe1df;border-radius:12px;overflow:hidden;background:#102330}.python-shell>summary{cursor:pointer;list-style:none;padding:10px 13px;background:#173746;color:#e8f5f3;font-size:12px;font-weight:800}.python-shell>summary::-webkit-details-marker{display:none}.python-shell>summary:after{content:"＋";float:right;color:#7ce0cb}.python-shell[open]>summary:after{content:"−"}
+.python-panel{margin-top:18px;border:1px solid #cfe1df;border-radius:16px;overflow:hidden;background:#102330;box-shadow:0 10px 28px #18374412}
+.python-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 12px;background:#173746;color:#e8f5f3;flex-wrap:wrap}
+.python-head h3{margin:0;font-size:12px}.python-head p{margin:3px 0 0;color:#b8d2d2;font-size:11px}
+.python-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.python-actions button{border:0;border-radius:8px;padding:8px 12px;font-weight:750;cursor:pointer}
+.python-run{background:#22b59e;color:#062b2a}.python-reset{background:#dce9e8;color:#294650}
+.python-body{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(240px,.85fr);gap:0}
+.python-editor-wrap{padding:9px;border-right:1px solid #294653}
+.python-label{color:#a9c5c6;font-size:10px;text-transform:uppercase;letter-spacing:1.2px;font-weight:800;margin:0 0 8px}
+#pythonCode{width:100%;min-height:145px;height:145px;resize:vertical;border:1px solid #315260;border-radius:10px;background:#0b1b26;color:#d8f5e9;padding:14px;font:12px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace;outline-color:#22b59e;tab-size:4;white-space:pre}
+.python-output-wrap{padding:9px;background:#102330}
+#pythonOutput{min-height:145px;height:145px;max-height:220px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;border:1px solid #315260;border-radius:10px;background:#091720;color:#b8f4d5;padding:14px;font:12px/1.65 ui-monospace,monospace}
+.python-status{font-size:11px;color:#b8d2d2;margin-top:8px}
+.python-foot{padding:10px 15px;background:#173746;color:#b8d2d2;font-size:11px}
+@media(max-width:760px){.python-body{grid-template-columns:1fr}.python-editor-wrap{border-right:0;border-bottom:1px solid #294653}#pythonCode,#pythonOutput{min-height:220px}}
+
+
+/* CodeLab motion refresh: subtle, instructional animations */
+@keyframes codelabRise{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes codelabGlow{0%,100%{box-shadow:0 0 0 0 rgba(18,164,145,0)}50%{box-shadow:0 0 0 5px rgba(18,164,145,.10)}}
+@keyframes codelabPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
+@keyframes codelabSweep{0%{background-position:180% 0}100%{background-position:-180% 0}}
+@keyframes codelabFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes codelabLine{from{stroke-dashoffset:80;opacity:.25}to{stroke-dashoffset:0;opacity:1}}
+@keyframes codelabBlink{0%,100%{opacity:.55}50%{opacity:1}}
+.content-card{animation:codelabRise .42s ease both}
+.workspace>.box{animation:codelabRise .42s ease both}
+.workspace>.box:nth-child(2){animation-delay:.08s}
+.step{transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease}
+.step.current{animation:codelabRise .32s ease both,codelabGlow 1.6s ease-in-out .25s 1;border-color:#1aa58f}
+.step.current .stepnum{animation:codelabPulse .65s ease-in-out 1}
+.result{transition:box-shadow .25s ease,transform .25s ease}
+.result:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(20,73,82,.08)}
+.result-value{animation:codelabRise .4s ease both}
+.visual .bit{animation:codelabRise .35s ease both;transition:transform .2s ease,box-shadow .2s ease}
+.visual .bit:nth-child(2){animation-delay:.04s}.visual .bit:nth-child(3){animation-delay:.08s}.visual .bit:nth-child(4){animation-delay:.12s}.visual .bit:nth-child(5){animation-delay:.16s}.visual .bit:nth-child(6){animation-delay:.20s}.visual .bit:nth-child(7){animation-delay:.24s}.visual .bit:nth-child(8){animation-delay:.28s}
+.visual .bit:hover,.dbit:hover{transform:translateY(-5px) scale(1.08);box-shadow:0 7px 15px rgba(10,95,100,.14);z-index:2}
+.diagram-panel{animation:codelabRise .45s ease both}
+.diagram-title{animation:codelabBlink 1.8s ease-in-out 1}
+.dbit{transition:transform .2s ease,box-shadow .2s ease}
+.dbit.parity{animation:codelabRise .38s ease both,codelabFloat 2.5s ease-in-out .5s infinite}
+.xor-gate{animation:codelabPulse 1.8s ease-in-out infinite;box-shadow:0 5px 14px rgba(229,139,79,.12)}
+.xor-flow{animation:codelabRise .4s ease both}
+.diagram-panel svg path,.diagram-panel svg line{stroke-dasharray:80;animation:codelabLine .8s ease both}
+button,.module-card,.nav-item{transition:transform .2s ease,box-shadow .2s ease,filter .2s ease}
+button:hover,.module-card:hover{transform:translateY(-2px);filter:saturate(1.08)}
+button:active{transform:scale(.97)}
+.python-shell>summary{transition:background .2s ease}
+.python-shell>summary:hover{background:#204657}
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}
+}
+
+
+.profile-editor{margin:16px 0 22px;border:1px solid #cfe1df;border-radius:14px;background:#fff;overflow:hidden}
+.profile-editor>summary{padding:13px 16px;cursor:pointer;font-weight:800;color:#176b70;list-style:none}
+.profile-editor>summary::-webkit-details-marker{display:none}
+.profile-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:0 16px 14px}
+.profile-grid label{display:grid;gap:5px;font-size:11px;font-weight:800;color:#58707b}
+.profile-grid input{width:100%;border:1px solid #d7e5e4;border-radius:8px;padding:9px 10px;font:13px inherit;color:#193b47}
+.profile-actions{display:flex;align-items:center;gap:12px;padding:0 16px 15px;flex-wrap:wrap}
+.profile-actions button{border:0;border-radius:8px;padding:9px 14px;background:#087f8c;color:white;font-weight:800;cursor:pointer}
+#profileStatus{font-size:11px;color:#71838e}
+.step-progress{height:6px;border-radius:20px;background:#e7f0ef;overflow:hidden;margin:0 0 12px}
+.step-progress>span{display:block;height:100%;width:0;background:linear-gradient(90deg,#087f8c,#32c7a6);border-radius:20px;transition:width .45s ease}
+.step.current{transform:translateX(4px);box-shadow:0 8px 18px rgba(8,127,140,.10)}
+.step.done .stepnum{background:#d8f4e7;color:#176b45}
+.step.current p{color:#173d49;font-weight:650}
+.dbit.reveal{animation:codelabRise .45s ease both,codelabGlow 1.1s ease 1}
+@media(max-width:760px){.profile-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.profile-grid{grid-template-columns:1fr}}
+
+</style></head>
+<body>
+
+<style>
+/* New CodeLab welcome screen inspired by the supplied AlgoVision reference */
+body.welcome-mode{background:#ffffff;color:#173b2d;overflow-x:hidden}
+body.welcome-mode>header,body.welcome-mode>.wrap,body.welcome-mode>footer{display:none!important}
+#codelabWelcome{min-height:100vh;position:relative;overflow:hidden;background:radial-gradient(ellipse at 88% 8%,#e2f5e9 0,transparent 34%),radial-gradient(ellipse at 5% 82%,#eff9f1 0,transparent 38%),linear-gradient(125deg,#ffffff,#f8fcf8 58%,#f1f9f2);color:#173b2d;font-family:Inter,ui-sans-serif,system-ui,sans-serif}
+.welcome-nav{height:76px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(22px,5vw,76px);position:relative;z-index:2;border-bottom:1px solid #e4eee6}
+.welcome-brand{display:flex;align-items:center;gap:11px;font-size:19px;font-weight:850;letter-spacing:-.5px}.welcome-logo{width:34px;height:34px;border-radius:11px;background:linear-gradient(140deg,#16834b,#35b86b);display:grid;place-items:center;box-shadow:0 6px 20px #16834b30;color:white}
+.welcome-nav small{color:#718579;font-size:12px}
+.welcome-content{max-width:1120px;margin:0 auto;padding:clamp(90px,13vh,150px) 28px 70px;position:relative;z-index:1}
+.welcome-eyebrow{font-size:11px;font-weight:800;letter-spacing:2px;color:#648071;text-transform:uppercase;margin-bottom:26px}.welcome-eyebrow:before{content:'';display:inline-block;width:8px;height:8px;border-radius:50%;background:#20a45a;margin-right:10px;box-shadow:0 0 12px #20a45a}
+.welcome-content h1{font-size:clamp(43px,6.5vw,76px);line-height:1.02;letter-spacing:-3.5px;max-width:760px;margin:0 0 24px;font-weight:850}.welcome-content h1 span{color:#16834b}
+.welcome-description{max-width:720px;color:#617568;font-size:clamp(15px,1.5vw,18px);line-height:1.8;margin:0 0 34px}
+.welcome-actions{display:flex;gap:13px;flex-wrap:wrap}.welcome-btn{border:1px solid transparent;border-radius:11px;padding:15px 23px;font-weight:800;font-size:14px;cursor:pointer;transition:.22s}.welcome-btn.primary{background:#16834b;color:#fff;box-shadow:0 8px 28px #16834b35}.welcome-btn.secondary{background:#fff;border-color:#cbded0;color:#23633f}.welcome-btn:hover{transform:translateY(-3px);box-shadow:0 12px 30px #16834b25}
+.welcome-stats{display:flex;gap:48px;flex-wrap:wrap;margin-top:56px}.welcome-stat strong{display:block;font-size:25px;letter-spacing:-1px;color:#173b2d}.welcome-stat span{font-size:12px;color:#718579}
+.welcome-orbit{position:absolute;width:440px;height:440px;right:4%;top:25%;border:1px solid #16834b18;border-radius:50%;pointer-events:none;animation:orbit 26s linear infinite}.welcome-orbit:before,.welcome-orbit:after{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:#25a65a;box-shadow:0 0 28px #25a65a;top:12%;left:18%}.welcome-orbit:after{width:28px;height:28px;top:auto;left:auto;right:10%;bottom:25%;background:#78c995}.welcome-orbit-two{position:absolute;width:650px;height:650px;right:-9%;top:12%;border:1px solid #42a96b18;border-radius:50%;pointer-events:none;animation:orbit 38s linear infinite reverse}.welcome-orbit-two:after{content:'';position:absolute;width:14px;height:14px;border-radius:50%;background:#9bd9ad;box-shadow:0 0 25px #9bd9ad;left:20%;bottom:18%}
+@keyframes orbit{to{transform:rotate(360deg)}}
+@media(max-width:700px){.welcome-orbit,.welcome-orbit-two{opacity:.35;right:-55%;top:40%}.welcome-content{padding-top:85px}.welcome-content h1{letter-spacing:-2px}.welcome-stats{gap:25px;margin-top:42px}}
+</style>
+<section id="codelabWelcome" aria-label="CodeLab welcome page">
+ <div class="welcome-nav"><div class="welcome-brand"><span class="welcome-logo">C</span>CodeLab</div><small>NON-BINARY CODES · INTERACTIVE LEARNING</small></div>
+ <div class="welcome-orbit"></div><div class="welcome-orbit-two"></div>
+ <div class="welcome-content">
+  <div class="welcome-eyebrow">Open source · Educational · Runs in your browser</div>
+  <h1>See algorithms.<br>Don’t just <span>read</span> them.</h1>
+  <p class="welcome-description">CodeLab turns non-binary codes, encoding, decoding and error-control techniques into step-by-step interactive visualizations. Edit the input, explore each algorithm, and watch the process happen.</p>
+  <div class="welcome-actions"><button class="welcome-btn primary" id="launchCodeLab">Launch the Visualizer&nbsp; →</button><button class="welcome-btn secondary" id="browseCodeLab">Browse Modules</button></div>
+  <div class="welcome-stats"><div class="welcome-stat"><strong>09</strong><span>Interactive modules</span></div><div class="welcome-stat"><strong>Zero</strong><span>Sign-ups needed</span></div><div class="welcome-stat"><strong>100%</strong><span>In your browser</span></div></div>
+ </div>
+</section>
+<script>
+ document.body.classList.add('welcome-mode');
+ function openCodeLab(target){document.body.classList.remove('welcome-mode');const welcome=document.getElementById('codelabWelcome');if(welcome)welcome.remove();if(target==='modules'){document.getElementById('modules')?.scrollIntoView({behavior:'smooth'});}else{document.getElementById('learn')?.scrollIntoView({behavior:'smooth'});}}
+ document.getElementById('launchCodeLab').addEventListener('click',()=>openCodeLab('learn'));
+ document.getElementById('browseCodeLab').addEventListener('click',()=>openCodeLab('modules'));
+</script>
+<header><div class="brand"><div class="logo">C</div>CodeLab <span style="font-weight:500;color:#80919b;font-size:12px">/ DIGITAL LEARNING</span></div><nav><a href="#learn">Learn</a><a href="#workspace">Live Lab</a><a href="#modules">Algorithms</a><a href="#about">About</a></nav><span style="font-size:12px;color:#71838d">No account · Runs locally</span></header>
+<div class="wrap">
+<section class="hero"><div><div class="eyebrow">Interactive coding studio</div><h1>Make error-control codes<br>visible, step by step.</h1><p>Explore non-binary codes, encoding, decoding and error detection. Change input values, press Solve, then Play to watch every algorithm step animate in your browser.</p><div class="stats"><span class="pill">Live calculations</span><span class="pill">Step-by-step algorithms</span><span class="pill">Beginner friendly</span></div></div><div class="hero-art">◈<br><span style="font-size:17px;letter-spacing:3px">CODE / CHECK / FIX</span></div></section>
+
+<details class="profile-editor" id="profileEditor">
+ <summary>✎ Add your details / personalize this website</summary>
+ <div class="profile-grid">
+  <label>Your name<input id="profileName" placeholder="Enter your name"></label>
+  <label>University / Institute<input id="profileUniversity" placeholder="Enter university name"></label>
+  <label>Program / Semester<input id="profileProgram" placeholder="e.g. BS Cyber Security Technology — Semester 6"></label>
+  <label>Subject / Course<input id="profileSubject" placeholder="Enter subject name"></label>
+  <label>Instructor / Submitted to<input id="profileInstructor" placeholder="Enter instructor name"></label>
+  <label>Project title<input id="profileProject" placeholder="Non-Binary Codes, Applications, Encoding and Decoding Techniques"></label>
+ </div>
+ <div class="profile-actions"><button type="button" id="saveProfile">Save my details</button><span id="profileStatus">Details are saved only in this browser.</span></div>
+</details>
+
+<div class="layout" id="learn">
+<aside class="sidebar"><div class="side-title">LEARNING MODULES</div><input class="search" id="filter" placeholder="⌕  Search algorithms…">
+<div class="group">Foundations</div>
+<button class="navitem active" data-algo="intro"><i class="dot"></i> Non-binary code basics</button>
+<button class="navitem" data-algo="radix"><i class="dot"></i> Base-q representation</button>
+<button class="navitem" data-algo="gf"><i class="dot"></i> Finite-field arithmetic</button>
+<div class="group">Error detection</div>
+<button class="navitem" data-algo="distance"><i class="dot"></i> Hamming distance</button>
+<button class="navitem" data-algo="crc"><i class="dot"></i> CRC / polynomial division</button>
+<button class="navitem" data-algo="checksum"><i class="dot"></i> Modulo-q checksum</button>
+<div class="group">Encoding & correction</div>
+<button class="navitem" data-algo="repeat"><i class="dot"></i> q-ary repetition code</button>
+<button class="navitem" data-algo="hamming"><i class="dot"></i> Hamming (7,4) code</button>
+<button class="navitem" data-algo="rs"><i class="dot"></i> Reed–Solomon overview</button>
+</aside>
+<main class="content-card" id="workspace">
+<div class="module-head"><div><div class="kicker" id="kicker">FOUNDATIONS · MODULE 01</div><h2 id="title">Non-binary code basics</h2><p class="desc" id="desc">A non-binary code uses an alphabet containing more than two symbols.</p></div><span class="tag" id="level">START HERE</span></div>
+<div class="tabs"><button class="tab active" data-tab="lab">Interactive lab</button><button class="tab" data-tab="algorithm">Algorithm</button><button class="tab" data-tab="concept">Concept & application</button></div>
+<div id="lab"></div><div id="algorithm" class="hidden"></div><div id="concept" class="hidden"></div>
+</main></div>
+<h2 class="section-title" id="modules">Explore all modules</h2><div class="module-grid" id="cards"></div>
+</div>
+<footer id="about"><div><strong style="font-size:16px">CodeLab</strong><br>Visual learning for coding and error control.</div><div>Educational demonstration · Client-side calculations<br>Use the algorithms panel to explore each method.</div><div>Non-Binary Codes · Encoding · Decoding</div></footer>
+<script>
+const modules={
+intro:{title:"Non-binary code basics",group:"FOUNDATIONS",level:"START HERE",desc:"A non-binary code uses an alphabet containing more than two symbols. The alphabet size is written q.",concept:"Binary codes use {0,1}. Ternary codes use {0,1,2}; quaternary codes use {0,1,2,3}. A q-ary symbol can represent one of q possible values. Non-binary codes are useful when symbols are processed in groups or when finite-field mathematics is used.",app:"Applications: multi-level data representation, algebraic error-correcting codes, digital storage and communication systems.",algo:"1. Choose an alphabet Σ with q symbols.\n2. Map each source item to a symbol in Σ.\n3. Group symbols into a message vector.\n4. If protection is required, add redundant symbols using an error-control code."},
+radix:{title:"Base-q representation",group:"FOUNDATIONS",level:"BEGINNER",desc:"Convert a non-negative integer into symbols from a chosen base-q alphabet.",concept:"In base q, each digit is in the range 0 to q−1. Repeated division by q produces the digits from right to left.",app:"Useful for understanding non-binary alphabets and representing values in compact symbol systems.",algo:"1. Divide the number by q.\n2. Record the remainder.\n3. Replace the number with the quotient.\n4. Repeat until quotient is zero.\n5. Reverse the recorded remainders."},
+gf:{title:"Finite-field arithmetic",group:"FOUNDATIONS",level:"BEGINNER+",desc:"Perform addition and multiplication modulo a prime q. This is the field GF(q) when q is prime.",concept:"GF(q) contains q elements. For prime q, arithmetic is performed modulo q. Example in GF(5): 4+3 ≡ 2 and 2×4 ≡ 3. (For q that is a prime power but not prime, extension-field rules are needed.)",app:"Finite-field operations form the mathematical foundation of Reed–Solomon and many BCH codes.",algo:"1. Select prime q and operands a, b.\n2. Add or multiply the operands.\n3. Reduce the result modulo q.\n4. The remainder is the field element."},
+distance:{title:"Hamming distance",group:"ERROR DETECTION",level:"BEGINNER",desc:"Count the positions where two equal-length strings or symbol sequences differ.",concept:"Hamming distance is the number of positions with unequal symbols. It works for binary and non-binary alphabets. A code with minimum distance d can detect up to d−1 symbol errors and correct up to floor((d−1)/2) errors.",app:"Used to measure codeword separation, assess error detection/correction capability, and compare received data with valid codewords.",algo:"1. Check that both sequences have equal length.\n2. Compare symbols at each position.\n3. Add 1 whenever the symbols differ.\n4. The total is the Hamming distance."},
+crc:{title:"CRC — cyclic redundancy check",group:"ERROR DETECTION",level:"INTERMEDIATE",desc:"Append a remainder from modulo-2 polynomial division. The receiver repeats the division to test for errors.",concept:"CRC treats a bit string as a polynomial over GF(2). The division uses XOR instead of ordinary subtraction. CRC detects many common transmission errors, but it does not itself correct them.",app:"Commonly used in Ethernet frames, storage formats and communication protocols for error detection.",algo:"1. Append r zero bits to the message, where r is the generator degree.\n2. Divide the padded message by the generator using XOR long division.\n3. The r-bit remainder is the CRC.\n4. Append the remainder to the original message.\n5. Receiver divides the received codeword by the same generator; zero remainder means it passes the CRC check."},
+checksum:{title:"Modulo-q checksum",group:"ERROR DETECTION",level:"BEGINNER+",desc:"Add q-ary symbols modulo q and append a check symbol that makes the total zero.",concept:"For a prime q, choose p = −(sum of data symbols) mod q. This simple check detects many single-symbol changes, but it is not a strong substitute for CRC or algebraic error correction.",app:"A compact teaching example of redundancy over a non-binary alphabet; useful for understanding parity checks in modular arithmetic.",algo:"1. Choose prime q.\n2. Add all data symbols.\n3. Compute p = (q − (sum mod q)) mod q.\n4. Append p to the message.\n5. Receiver sums all symbols modulo q; a non-zero result flags an error."},
+repeat:{title:"q-ary repetition code",group:"ENCODING & CORRECTION",level:"BEGINNER",desc:"Repeat each source symbol a fixed number of times, then decode by majority vote.",concept:"For repetition factor n, encode x as x repeated n times. With odd n, majority voting can correct floor((n−1)/2) symbol errors in each repeated group. It is simple but inefficient.",app:"A teaching model for redundancy and majority decoding; practical systems use more efficient codes.",algo:"1. Choose alphabet and odd repetition factor n.\n2. Replace each source symbol x with n copies of x.\n3. At the receiver, split into groups of n.\n4. Output the most frequent symbol in each group.\n5. If there is a tie, mark the group as ambiguous."},
+hamming:{title:"Hamming (7,4) code",group:"ENCODING & CORRECTION",level:"INTERMEDIATE",desc:"Encode four data bits into seven bits with three parity bits. This binary example demonstrates syndrome-based single-bit correction.",concept:"Positions 1, 2 and 4 hold parity bits; positions 3, 5, 6 and 7 hold data. Even parity is used. The three-bit syndrome identifies a single flipped bit (1–7).",app:"A classic teaching code used to introduce parity-check matrices, syndromes and single-error correction. This is binary, included as a comparison alongside q-ary methods.",algo:"1. Place data bits at positions 3,5,6,7.\n2. Calculate p1 over positions 1,3,5,7.\n3. Calculate p2 over positions 2,3,6,7.\n4. Calculate p4 over positions 4,5,6,7.\n5. Receiver recomputes parity checks to form syndrome s4s2s1.\n6. If syndrome is non-zero, flip the bit at that position (single-error assumption)."},
+rs:{title:"Reed–Solomon overview",group:"ENCODING & CORRECTION",level:"INTERMEDIATE",desc:"A powerful non-binary block-code family that operates on symbols from GF(2^m), often bytes.",concept:"An RS(n,k) code maps k data symbols to n code symbols. It adds n−k parity symbols and has minimum distance d=n−k+1. It can correct up to floor((n−k)/2) unknown symbol errors, or a combination of errors and erasures.",app:"QR codes, optical media, storage systems and communication links use Reed–Solomon coding to recover damaged symbols.",algo:"1. Choose field GF(2^m), code length n and data length k.\n2. Represent the k data symbols as a polynomial.\n3. Encode using a generator polynomial to add n−k parity symbols.\n4. Receiver computes syndromes.\n5. A decoder locates error positions and magnitudes, then corrects the symbols.\nNote: a production RS encoder needs a defined field polynomial and generator polynomial."}
+};
+let current="intro",stepIndex=0,steps=[];
+const $=id=>document.getElementById(id);
+function setModule(id){stopPlayback("");current=id;stepIndex=0;document.querySelectorAll(".navitem").forEach(b=>b.classList.toggle("active",b.dataset.algo===id));const m=modules[id];$("kicker").textContent=m.group+" · MODULE";$("title").textContent=m.title;$("desc").textContent=m.desc;$("level").textContent=m.level;$("lab").classList.remove("hidden");$("algorithm").classList.add("hidden");$("concept").classList.add("hidden");document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.tab==="lab"));renderLab();renderAlgorithm();renderConcept();}
+function switchTab(tab){["lab","algorithm","concept"].forEach(t=>$(t).classList.toggle("hidden",t!==tab));document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));}
+function renderAlgorithm(){let m=modules[current];$("algorithm").innerHTML=`<div class="box"><h3>Procedure / pseudocode</h3><pre style="white-space:pre-wrap;font:13px/1.8 ui-monospace,monospace;color:#405866;margin:0">${m.algo}</pre></div><div class="note">The live lab uses the same core steps with your current input values.</div>`}
+function renderConcept(){let m=modules[current];$("concept").innerHTML=`<div class="box"><h3>How it works</h3><p style="color:#536977">${m.concept}</p><h3 style="margin-top:20px">Where it is used</h3><p style="color:#536977">${m.app}</p></div>`}
+function input(label,id,value,hint=""){return `<div class="field"><label>${label}</label><input id="${id}" value="${value}">${hint?`<div class="hint">${hint}</div>`:""}</div>`}
+function buttons(){return `<div class="btnrow"><button class="btn" id="run">↻ Solve / Update</button><button class="btn secondary" id="play">▶ Play</button><button class="btn ghost" id="pause" disabled>Ⅱ Pause</button><button class="btn ghost" id="next">Next step →</button><button class="btn ghost" id="reset">Reset</button><select id="speed" aria-label="Animation speed" style="border:1px solid var(--line);border-radius:9px;padding:8px;background:#fff;color:var(--ink)"><option value="1400">Slow</option><option value="850" selected>Normal</option><option value="400">Fast</option></select></div><div class="hint" id="playstatus" aria-live="polite">Change your values, select Solve / Update, then press Play to watch each step.</div>`}
+
+let pythonWorker=null,pythonRequest=0,pythonPending={};
+function executePython(code){
+  if(!pythonWorker){
+    const workerSource = `
+      importScripts("https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide.js");
+      let pyodide=null, loading=null;
+      async function init(){if(pyodide)return pyodide;if(!loading)loading=loadPyodide();pyodide=await loading;return pyodide;}
+      self.onmessage=async(e)=>{
+        const {id,code}=e.data;
+        try{
+          const p=await init();let output="";
+          p.setStdout({batched:s=>{output+=s+"\\\\n";}});
+          p.setStderr({batched:s=>{output+=s+"\\\\n";}});
+          await p.runPythonAsync(code);
+          self.postMessage({id,ok:true,output:output.trimEnd()});
+        }catch(err){self.postMessage({id,ok:false,error:String(err)});}
+      };
+    `;
+    const blob=new Blob([workerSource],{type:"text/javascript"});
+    pythonWorker=new Worker(URL.createObjectURL(blob));
+    pythonWorker.onmessage=e=>{
+      const msg=e.data,pending=pythonPending[msg.id];if(!pending)return;
+      clearTimeout(pending.timer);delete pythonPending[msg.id];
+      msg.ok?pending.resolve(msg.output):pending.reject(new Error(msg.error));
+    };
+    pythonWorker.onerror=()=>{
+      Object.values(pythonPending).forEach(x=>{clearTimeout(x.timer);x.reject(new Error("Python worker failed. Check your internet connection."));});
+      pythonPending={};pythonWorker.terminate();pythonWorker=null;
+    };
+  }
+  return new Promise((resolve,reject)=>{
+    const id=++pythonRequest;
+    const timer=setTimeout(()=>{
+      delete pythonPending[id];if(pythonWorker){pythonWorker.terminate();pythonWorker=null;}
+      reject(new Error("Execution timed out after 12 seconds. The Python worker was stopped to keep the page responsive."));
+    },12000);
+    pythonPending[id]={resolve,reject,timer};pythonWorker.postMessage({id,code});
+  });
+}
+function pythonExample(){
+  const val=id=>$(id)?.value ?? "";
+  const q=Number(val("q")||5), a=Number(val("a")||0), b=Number(val("b")||0);
+  const pyString=s=>JSON.stringify(String(s));
+  switch(current){
+    case "intro": return `q = ${q}\nalphabet = list(range(q))\nprint("Alphabet:", alphabet)\nprint("Number of possible symbols:", len(alphabet))`;
+    case "radix": return `number = ${Number(val("num")||0)}\nbase = ${q}\ndigits = "0123456789ABCDEF"\nif number == 0:\n    result = "0"\nelse:\n    result = ""\n    n = number\n    while n > 0:\n        result = digits[n % base] + result\n        n //= base\nprint("Decimal:", number)\nprint(f"Base-{base}:", result)`;
+    case "gf": {
+      const op=val("op")||"add", symbol={add:"+",sub:"-",mul:"*"}[op];
+      return `q = ${q}\na = ${a}\nb = ${b}\noperation = "${op}"\nraw = a ${symbol} b\nanswer = raw % q\nprint(f"Working in GF({q})")\nprint("Raw result:", raw)\nprint(f"Answer modulo {q}:", answer)`;
+    }
+    case "distance": return `word_a = ${pyString(val("a"))}\nword_b = ${pyString(val("b"))}\nif len(word_a) != len(word_b):\n    raise ValueError("Words must have equal length")\ndifferences = [i + 1 for i, (x, y) in enumerate(zip(word_a, word_b)) if x != y]\nprint("Word A:", word_a)\nprint("Word B:", word_b)\nprint("Different positions:", differences)\nprint("Hamming distance:", len(differences))`;
+    case "crc": return `message = ${pyString((val("mode")==="encode"?val("msg"):val("recv")).trim())}\ngenerator = ${pyString(val("gen").trim())}\nmode = ${pyString(val("mode")||"encode")}\nif not set(message) <= {"0", "1"} or not set(generator) <= {"0", "1"} or not generator.startswith("1"):\n    raise ValueError("Use valid binary strings and a generator starting with 1")\nwork = list(message + ("0" * (len(generator)-1) if mode == "encode" else ""))\nfor i in range(len(work)-len(generator)+1):\n    if work[i] == "1":\n        for j, bit in enumerate(generator):\n            work[i+j] = str(int(work[i+j]) ^ int(bit))\nremainder = "".join(work[-(len(generator)-1):])\nprint("Mode:", mode)\nprint("CRC remainder:", remainder)\nif mode == "encode":\n    print("Transmitted codeword:", message + remainder)\nelse:\n    print("CRC check:", "PASS" if int(remainder or "0", 2) == 0 else "ERROR DETECTED")`;
+    case "checksum": return `symbols = [int(x.strip()) for x in ${pyString(val("data"))}.split(",")]\nq = ${q}\nif any(x < 0 or x >= q for x in symbols):\n    raise ValueError("Every symbol must be between 0 and q-1")\ncheck = (-sum(symbols)) % q\ncodeword = symbols + [check]\nprint("Data symbols:", symbols)\nprint("Check symbol:", check)\nprint("Protected codeword:", codeword)\nprint("Verification modulo q:", sum(codeword) % q)`;
+    case "repeat": {
+      const n=Number(val("n")||3), mode=val("mode")||"encode";
+      if(mode==="encode") return `message = [x.strip() for x in ${pyString(val("msg"))}.split(",")]\nn = ${n}\nencoded = [symbol for symbol in message for _ in range(n)]\nprint("Message:", message)\nprint("Repetition factor:", n)\nprint("Encoded symbols:", encoded)`;
+      return `groups = [[x.strip() for x in group.split(",")] for group in ${pyString(val("recv"))}.split("|")]\nn = ${n}\nfrom collections import Counter\ndecoded = []\nfor group in groups:\n    if len(group) != n:\n        raise ValueError(f"Each group must contain {n} symbols")\n    counts = Counter(group)\n    decoded.append(counts.most_common(1)[0][0])\nprint("Received groups:", groups)\nprint("Decoded message:", decoded)`;
+    }
+    case "hamming": {
+      if((val("mode")||"encode")==="encode") return `data = ${pyString(val("data"))}\nif len(data) != 4 or set(data) - {"0", "1"}:\n    raise ValueError("Enter exactly four binary bits")\nbits = [0] * 8\nbits[3], bits[5], bits[6], bits[7] = map(int, data)\nbits[1] = bits[3] ^ bits[5] ^ bits[7]\nbits[2] = bits[3] ^ bits[6] ^ bits[7]\nbits[4] = bits[5] ^ bits[6] ^ bits[7]\ncodeword = "".join(map(str, bits[1:]))\nprint("Data bits:", data)\nprint("Hamming (7,4) codeword:", codeword)\nprint("Parity bits p1, p2, p4:", bits[1], bits[2], bits[4])`;
+      return `received = ${pyString(val("recv"))}\nif len(received) != 7 or set(received) - {"0", "1"}:\n    raise ValueError("Enter exactly seven binary bits")\nbits = [0] + list(map(int, received))\ns1 = bits[1] ^ bits[3] ^ bits[5] ^ bits[7]\ns2 = bits[2] ^ bits[3] ^ bits[6] ^ bits[7]\ns4 = bits[4] ^ bits[5] ^ bits[6] ^ bits[7]\nsyndrome = s4*4 + s2*2 + s1\nprint("Syndrome bits:", f"{s4}{s2}{s1}")\nprint("Error position:", syndrome if syndrome else "None")\nif 1 <= syndrome <= 7:\n    bits[syndrome] ^= 1\nprint("Corrected codeword:", "".join(map(str, bits[1:])))\nprint("Recovered data:", "".join(map(str, [bits[3], bits[5], bits[6], bits[7]])))`;
+    }
+    case "rs": return `n = ${Number(val("n")||15)}\nk = ${Number(val("k")||11)}\nif not (n > k >= 1):\n    raise ValueError("Require n > k >= 1")\nparity = n - k\nminimum_distance = parity + 1\ncorrectable_errors = (minimum_distance - 1) // 2\nprint("Code: RS(n, k)")\nprint("Parity symbols:", parity)\nprint("Minimum distance:", minimum_distance)\nprint("Correctable unknown symbol errors:", correctable_errors)\nprint("Code rate:", round(k / n, 3))\nprint("Note: this module demonstrates parameters, not full RS encoding.")`;
+    default: return 'print("Choose a module to begin.")';
+  }
+}
+function syncPythonLab(){
+  const editor=$("pythonCode"),status=$("pythonStatus"),out=$("pythonOutput");
+  if(!editor)return;
+  editor.value=pythonExample();
+  if(status)status.textContent="Example code ready. Click Run Python to execute it.";
+  if(out)out.textContent="Press Run Python to see the program output.";
+  $("pythonRun").onclick=runPythonCode;
+  $("pythonRefresh").onclick=()=>{editor.value=pythonExample();out.textContent="Example restored. Click Run Python.";status.textContent="Example code restored.";};
+}
+async function runPythonCode(){
+  const status=$("pythonStatus"),out=$("pythonOutput"),btn=$("pythonRun"),editor=$("pythonCode");
+  if(!editor)return;
+  btn.disabled=true;status.textContent="Starting Python (first start may take longer)…";out.textContent="Running…";
+  try{
+    const result=await executePython(editor.value);
+    out.textContent=result||"(Program finished with no printed output.)";
+    status.textContent="✓ Finished. The page remains responsive.";
+  }catch(err){
+    out.textContent=String(err.message||err);
+    status.textContent="Run stopped. Edit the code and try again.";
+  }finally{btn.disabled=false;}
+}
+
+function renderLab(){let h="";
+if(current==="intro")h=`<div class="workspace"><div class="box"><h3>Choose an alphabet</h3>${input("Alphabet size q (2–10)","q","4","Examples: q=3 ternary, q=4 quaternary, q=5 quinary.")}${buttons()}</div><div class="box"><h3>Symbol alphabet</h3><div id="out" class="visual"></div><div class="result"><div class="result-label">Symbols available</div><div class="result-value" id="value"></div></div><div id="diagram" class="diagram-panel"></div><div id="steps" class="steps"></div></div></div>`;
+if(current==="radix")h=`<div class="workspace"><div class="box"><h3>Convert integer to base q</h3>${input("Decimal integer","num","45","Use a non-negative whole number.")}${input("Base q","q","4","Base 2 to 16 is supported.")}${buttons()}</div><div class="box"><h3>Division trace</h3><div class="result"><div class="result-label">Base-q result</div><div class="result-value" id="value">—</div></div><div id="out" class="visual"></div><div id="diagram" class="diagram-panel"></div><div id="steps" class="steps"></div></div></div>`;
+if(current==="gf")h=`<div class="workspace"><div class="box"><h3>Finite-field calculator GF(q)</h3>${input("Prime q","q","5","This demo supports prime q values up to 97.")}${input("Operand a","a","4")}${input("Operand b","b","3")}<div class="field"><label>Operation</label><select id="op"><option value="add">Addition</option><option value="mul">Multiplication</option><option value="sub">Subtraction</option></select></div>${buttons()}</div><div class="box"><h3>Calculation trace</h3><div class="result"><div class="result-label">Result in GF(q)</div><div class="result-value" id="value">—</div></div><div id="diagram" class="diagram-panel"></div><div id="steps" class="steps"></div></div></div>`;
+if(current==="distance")h=`<div class="workspace"><div class="box"><h3>Compare two codewords</h3>${input("Sequence A","a","12031","Use equal-length strings over any alphabet.")}${input("Sequence B","b","10221")}${buttons()}</div><div class="box"><h3>Position-by-position comparison</h3><div class="result"><div class="result-label">Hamming distance</div><div class="result-value" id="value">—</div></div><div id="out" class="visual"></div><div id="diagram" class="diagram-panel"></div><div id="steps" class="steps"></div></div></div>`;
+if(current==="crc")h=`<div class="workspace"><div class="box"><h3>CRC encoder / checker</h3>${input("Message bits","msg","1101011011","Binary string only.")}${input("Generator polynomial bits","gen","10011","Example 10011 represents x⁴+x+1.")}<div class="field"><label>Mode</label><select id="mode"><option value="encode">Encode message</option><option value="check">Check received codeword</option></select></div>${input("Received codeword (check mode)","recv","11010110111110","Used when mode is Check received codeword.")}${buttons()}</div><div class="box"><h3>XOR long-division trace</h3><div class="result"><div class="result-label">Remainder / CRC</div><div class="result-value" id="value">—</div></div><div class="result"><div class="result-label">Transmitted codeword</div><div class="result-value" id="codeword">—</div></div><div id="diagram" class="diagram-panel"></div><div id="steps" class="steps"></div></div></div>`;
+if(current==="checksum")h=`<div class="workspace"><div class="box"><h3>Non-binary modulo-q check</h3>${input("Data symbols (comma-separated)","data","1,2,4","Each symbol must be between 0 and q−1.")}${input("Prime q","q","5")}${buttons()}</div><div class="box"><h3>Check-symbol calculation</h3><div class="result"><div class="result-label">Check symbol</div><div class="result-value" id="value">—</div></div><div class="result"><div class="result-label">Protected codeword</div><div class="result-value" id="codeword">—</div></div><div id="diagram" class="diagram-panel"></div><div id="steps" class="steps"></div></div></div>`;
+if(current==="repeat")h=`<div class="workspace"><div class="box"><h3>q-ary repetition encoder</h3>${input("Message symbols","msg","2012","Enter symbols separated by commas.")}${input("Repetition factor (odd)","n","3")}${input("Received groups (optional)","recv","2,0,2 | 0,1,0 | 1,1,1 | 2,2,2","Change a symbol to test majority decoding.")}<div class="field"><label>Mode</label><select id="mode"><option value="encode">Encode message</option><option value="decode">Decode received groups</option></select></div>${buttons()}</div><div class="box"><h3>Encoding / majority vote</h3><div class="result"><div class="result-label">Result</div><div class="result-value" id="value">—</div></div><div id="out" class="visual"></div><div id="diagram" class="diagram-panel"></div><div id="steps" class="steps"></div></div></div>`;
+if(current==="hamming")h=`<div class="workspace"><div class="box"><h3>Hamming (7,4) encoder / decoder</h3>${input("4 data bits","data","1011","Enter exactly four bits.")}${input("Received 7-bit word (optional)","recv","0110011","Change one bit to test single-error correction.")}<div class="field"><label>Mode</label><select id="mode"><option value="encode">Encode data</option><option value="decode">Decode / correct received word</option></select></div>${buttons()}</div><div class="box"><h3>Parity and syndrome visualization</h3><div class="result"><div class="result-label">Codeword / corrected word</div><div class="result-value" id="value">—</div></div><div id="out" class="visual"></div><div id="diagram" class="diagram-panel"></div><div id="steps" class="steps"></div></div></div>`;
+if(current==="rs")h=`<div class="workspace"><div class="box"><h3>Reed–Solomon capability calculator</h3>${input("Total symbols n","n","15")}${input("Data symbols k","k","11","n must be greater than k.")}${buttons()}</div><div class="box"><h3>Code parameters</h3><div class="result"><div class="result-label">Parity symbols</div><div class="result-value" id="value">—</div></div><div id="steps" class="steps"></div><div class="note">This module calculates code parameters. Full RS symbol encoding/decoding requires selecting a finite field and generator polynomial.</div></div></div>`;
+$("lab").innerHTML=h + `
+<details class="python-shell"><summary>🐍 Live Python Coding <span style="font-weight:400;color:#b8d2d2">— open editor and output</span></summary><div class="python-panel" id="pythonPanel">
+  <div class="python-head">
+    <div><h3>🐍 Live Python Coding</h3><p>Editable Python code for the current problem · Execute and inspect the result</p></div>
+    <div class="python-actions"><button class="python-run" id="pythonRun">▶ Run Python</button><button class="python-reset" id="pythonRefresh">↻ Restore example</button></div>
+  </div>
+  <div class="python-body">
+    <div class="python-editor-wrap"><div class="python-label">Python editor</div><textarea id="pythonCode" spellcheck="false" aria-label="Python code editor"></textarea><div class="python-status" id="pythonStatus">Preparing Python runtime…</div></div>
+    <div class="python-output-wrap"><div class="python-label">Program output</div><pre id="pythonOutput">Your Python output will appear here.</pre></div>
+  </div>
+  <div class="python-foot">Python runs in your browser. First load needs internet; avoid very long or infinite loops.</div>
+</div></details>`; syncPythonLab(); $("run").onclick=()=>{stopPlayback();runAlgo();$("playstatus").textContent="Solved using the current input. Press Play to animate the steps.";};$("play").onclick=()=>startPlayback();$("pause").onclick=()=>stopPlayback("Paused.");$("next").onclick=()=>{stopPlayback();if(stepIndex<steps.length-1)stepIndex++;showSteps();};$("reset").onclick=()=>{stopPlayback();stepIndex=0;renderLab();runAlgo();};runAlgo();}
+let playbackTimer=null;
+function stopPlayback(message="Playback stopped."){
+  if(playbackTimer!==null){clearInterval(playbackTimer);playbackTimer=null;}
+  const play=$("play"),pause=$("pause"),status=$("playstatus");
+  if(play)play.disabled=false;
+  if(pause)pause.disabled=true;
+  if(status && message)status.textContent=message;
+}
+function startPlayback(){
+  if(!steps.length)return;
+  if(stepIndex>=steps.length-1)stepIndex=-1;
+  stopPlayback("");
+  const play=$("play"),pause=$("pause"),status=$("playstatus"),speed=$("speed");
+  if(play)play.disabled=true;
+  if(pause)pause.disabled=false;
+  if(status)status.textContent="Playing the solution step by step…";
+  const delay=speed?Number(speed.value):850;
+  playbackTimer=setInterval(()=>{
+    if(stepIndex<steps.length-1){
+      stepIndex++;
+      showSteps();
+      const active=$("steps")?.querySelector(".current");
+      if(active)active.scrollIntoView({behavior:"smooth",block:"nearest"});
+      if(status)status.textContent=`Step ${stepIndex+1} of ${steps.length}`;
+    }else{
+      stopPlayback("✓ Solution complete. Change an input and press Solve / Update to try again.");
+    }
+  },delay);
+}
+function showSteps(){let el=$("steps");if(!el)return;const pct=steps.length?Math.max(0,((stepIndex+1)/steps.length)*100):0;el.innerHTML=`<div class="step-progress"><span style="width:${pct}%"></span></div>`+steps.map((s,i)=>`<div class="step ${i===stepIndex?'current':i<stepIndex?'done':''}"><div class="stepnum">${i<stepIndex?'✓':i+1}</div><p>${s}</p></div>`).join("");renderDiagram();}
+function renderDiagram(){
+ const host=$("diagram"); if(!host)return;
+ if(current==="distance"){
+  const a=$("a")?.value.trim()||"",b=$("b")?.value.trim()||"";
+  if(!a||a.length!==b.length){host.innerHTML="";return;}
+  let mismatch=[];for(let i=0;i<a.length;i++)if(a[i]!==b[i])mismatch.push(i);
+  host.innerHTML=`<div class="diagram-title">Animated symbol comparison</div><div class="diagram-caption">Matching positions are green; changed positions are highlighted in coral.</div>
+  <div class="bitrow">${[...a].map((c,i)=>`<span class="dbit ${i<=stepIndex?'reveal ':''}${mismatch.includes(i)?'error':'fixed'}" style="animation-delay:${i*.06}s"><small>pos ${i+1}</small>${c}</span>`).join("")}</div>
+  <div class="bitrow">${[...b].map((c,i)=>`<span class="dbit ${i<=stepIndex?'reveal ':''}${mismatch.includes(i)?'error':'fixed'}" style="animation-delay:${i*.06}s"><small>pos ${i+1}</small>${c}</span>`).join("")}</div>
+  <div class="diagram-caption">Distance = ${mismatch.length} different position(s): ${mismatch.length?mismatch.map(i=>i+1).join(", "):"none"}.</div>`;
+ }
+ if(current==="hamming"){
+  const mode=$("mode")?.value||"encode";let bits=[],beforeBits=[],bad=-1,syndrome=0;
+  if(mode==="encode"){
+   const d=$("data")?.value.trim()||"";
+   if(!/^[01]{4}$/.test(d)){host.innerHTML="";return;}
+   bits=Array(8).fill(0);[bits[3],bits[5],bits[6],bits[7]]=[...d].map(Number);
+   bits[1]=bits[3]^bits[5]^bits[7];bits[2]=bits[3]^bits[6]^bits[7];bits[4]=bits[5]^bits[6]^bits[7];
+  }else{
+   const w=$("recv")?.value.trim()||"";if(!/^[01]{7}$/.test(w)){host.innerHTML="";return;}
+   bits=[0,...w].map(Number);beforeBits=bits.slice();
+   const s1=bits[1]^bits[3]^bits[5]^bits[7],s2=bits[2]^bits[3]^bits[6]^bits[7],s4=bits[4]^bits[5]^bits[6]^bits[7];
+   syndrome=s4*4+s2*2+s1;bad=syndrome;
+   if(syndrome>0&&syndrome<=7)bits[syndrome]^=1;
+  }
+  const labels=["p1","p2","d1","p4","d2","d3","d4"];
+  host.innerHTML=`<div class="diagram-title">${mode==="encode"?"Hamming encoder — parity-bit layout":"Hamming decoder — syndrome correction"}</div>
+  <div class="diagram-caption">Codeword positions 1–7. Violet cells are parity positions; the decoder shows the received bits and corrected result.</div>
+  ${mode==="decode"?`<strong style="font-size:11px;color:#71858e">RECEIVED WORD</strong><div class="bitrow">${beforeBits.slice(1).map((v,i)=>`<span class="dbit ${bad===i+1?"error":""}" style="animation-delay:${i*.06}s"><small>${i+1}</small>${v}</span>`).join("")}</div><div class="diagram-caption">↓ Syndrome identifies the error position ↓</div>`:""}
+  <strong style="font-size:11px;color:#71858e">${mode==="decode"?"CORRECTED CODEWORD":"ENCODED CODEWORD"}</strong>
+  <div class="bitrow">${bits.slice(1).map((v,i)=>`<span class="dbit ${i<Math.max(1,stepIndex+1)?'reveal ':''}${mode==="decode"&&bad===i+1?"fixed":([1,2,4].includes(i+1)?"parity":"")}" style="animation-delay:${i*.08}s"><small>${i+1} · ${labels[i]}</small>${v}</span>`).join("")}</div>
+  <div class="parity-legend"><span>Parity positions</span><span class="err">Error location before correction</span><span class="ok">Corrected / data cells</span></div>
+  <div class="xor-flow"><div class="wire"></div><div class="xor-gate">⊕</div><div class="wire"></div><div class="diagram-caption">${mode==="encode"?"XOR parity groups: p1 checks 1,3,5,7 · p2 checks 2,3,6,7 · p4 checks 4,5,6,7":`Syndrome = ${syndrome.toString(2).padStart(3,"0")} (decimal ${syndrome}). ${syndrome?`Flip position ${syndrome}.`:"No single-bit correction indicated."}`}</div></div>`;
+ }
+ if(current==="radix"){
+  const n=Number($("num")?.value),q=Number($("q")?.value);
+  if(!Number.isSafeInteger(n)||n<0||q<2||q>16){host.innerHTML="";return;}
+  let x=n,rows=[];if(x===0)rows.push({x:0,quo:0,rem:0});else while(x>0){rows.push({x,quo:Math.floor(x/q),rem:x%q});x=Math.floor(x/q);}
+  const count=Math.min(rows.length,Math.max(1,stepIndex+1));
+  host.innerHTML=`<div class="diagram-title">Base-${q} repeated-division visualization</div><div class="diagram-caption">Each division produces one remainder. Read remainders from bottom to top.</div>${rows.slice(0,count).map((r,i)=>`<div class="crc-stage"><strong>DIVISION ${i+1}</strong><div class="crc-row">${r.x} ÷ ${q} = ${r.quo} remainder <span class="changed">${r.rem.toString(16).toUpperCase()}</span></div></div>`).join("")}<div class="diagram-caption">Remainder stack: ${rows.slice(0,count).map(r=>r.rem.toString(16).toUpperCase()).join(" → ")}.</div>`;
+ }
+ if(current==="gf"){
+  const q=Number($("q")?.value),a=Number($("a")?.value),b=Number($("b")?.value),op=$("op")?.value||"add";
+  if(!Number.isInteger(q)||q<2||q>97||![a,b].every(Number.isInteger)||a<0||b<0||a>=q||b>=q){host.innerHTML="";return;}
+  const raw=op==="add"?a+b:op==="sub"?a-b:a*b,res=((raw%q)+q)%q,symbol={add:"+",sub:"−",mul:"×"}[op];
+  host.innerHTML=`<div class="diagram-title">Finite-field operation in GF(${q})</div><div class="diagram-caption">Operands enter the operation, then the result is reduced modulo q.</div><div class="xor-flow"><span class="dbit">${a}</span><span class="wire"></span><span class="xor-gate">${symbol}</span><span class="wire"></span><span class="dbit">${b}</span><span class="wire"></span><span style="font-size:22px">→</span><span class="dbit fixed">${res}</span></div><div class="crc-stage"><strong>INTEGER RESULT</strong><div class="crc-row">${a} ${symbol} ${b} = ${raw}</div></div><div class="crc-stage"><strong>MODULO REDUCTION</strong><div class="crc-row">${raw} mod ${q} = <span class="changed">${res}</span></div></div>`;
+ }
+ if(current==="checksum"){
+  const q=Number($("q")?.value),vals=($("data")?.value||"").split(",").map(x=>Number(x.trim()));
+  if(!Number.isInteger(q)||q<2||q>97||!vals.length||vals.some(x=>!Number.isInteger(x)||x<0||x>=q)){host.innerHTML="";return;}
+  const sum=vals.reduce((x,y)=>x+y,0),p=((q-(sum%q))%q);
+  host.innerHTML=`<div class="diagram-title">Modulo-q check-symbol construction</div><div class="diagram-caption">The check symbol balances the data sum so the full codeword totals zero modulo q.</div><div class="bitrow">${vals.map((v,i)=>`<span class="dbit"><small>data ${i+1}</small>${v}</span>`).join("")}<span class="dbit parity"><small>check</small>${stepIndex>=3?p:"?"}</span></div><div class="crc-stage"><strong>SUM DATA SYMBOLS</strong><div class="crc-row">${vals.join(" + ")} = ${sum}</div></div><div class="crc-stage"><strong>COMPUTE CHECK SYMBOL</strong><div class="crc-row">p = (${q} − (${sum} mod ${q})) mod ${q} = <span class="changed">${stepIndex>=3?p:"?"}</span></div></div><div class="diagram-caption">Verification: (${sum} + ${p}) mod ${q} = ${(sum+p)%q}.</div>`;
+ }
+ if(current==="repeat"){
+  const mode=$("mode")?.value||"encode",n=Number($("n")?.value);
+  if(!Number.isInteger(n)||n<1||n>9||n%2===0){host.innerHTML="";return;}
+  if(mode==="encode"){
+   const vals=($("msg")?.value||"").split(",").map(x=>x.trim());if(vals.some(x=>!x)){host.innerHTML="";return;}
+   host.innerHTML=`<div class="diagram-title">q-ary repetition encoder</div><div class="diagram-caption">Each input symbol is copied ${n} times.</div>${vals.map((v,i)=>`<div class="crc-stage"><strong>INPUT SYMBOL ${i+1}</strong><div class="bitrow"><span class="dbit">${v}</span><span class="wire">→</span>${Array.from({length:n},()=>`<span class="dbit fixed">${v}</span>`).join("")}</div></div>`).join("")}`;
+  }else{
+   const groups=($("recv")?.value||"").split("|").map(g=>g.trim().split(",").map(x=>x.trim()));if(groups.some(g=>g.length!==n)){host.innerHTML="";return;}
+   host.innerHTML=`<div class="diagram-title">Majority-vote decoder</div><div class="diagram-caption">The most frequent symbol in each group is selected.</div>${groups.map((g,i)=>{let counts={};g.forEach(x=>counts[x]=(counts[x]||0)+1);let win=Object.keys(counts).sort((a,b)=>counts[b]-counts[a])[0];return `<div class="crc-stage"><strong>RECEIVED GROUP ${i+1}</strong><div class="bitrow">${g.map(v=>`<span class="dbit ${v===win?'fixed':'error'}">${v}</span>`).join("")}<span class="wire">→</span><span class="dbit fixed">${win}</span></div></div>`}).join("")}`;
+  }
+ }
+ if(current==="rs"){
+  const n=Number($("n")?.value),k=Number($("k")?.value);if(!Number.isInteger(n)||!Number.isInteger(k)||k<1||n<=k){host.innerHTML="";return;}
+  const parity=n-k,errors=Math.floor(parity/2);
+  host.innerHTML=`<div class="diagram-title">Reed–Solomon codeword structure</div><div class="diagram-caption">A codeword contains k data symbols followed by n−k parity symbols.</div><div class="bitrow">${Array.from({length:Math.min(k,30)},(_,i)=>`<span class="dbit fixed"><small>data</small>D${i+1}</span>`).join("")}${Array.from({length:Math.min(parity,30)},(_,i)=>`<span class="dbit parity"><small>parity</small>P${i+1}</span>`).join("")}</div><div class="crc-stage"><strong>CODE PARAMETERS</strong><div class="crc-row">n=${n} · k=${k} · parity=${parity} · dmin=${parity+1}</div></div><div class="diagram-caption">Unknown symbol errors correctable: ${errors}.</div>`;
+ }
+ if(current==="crc"){
+  const mode=$("mode")?.value||"encode",gen=$("gen")?.value.trim()||"",msg=mode==="encode"?$("msg")?.value.trim()||"":$("recv")?.value.trim()||"";
+  if(!/^[01]+$/.test(msg)||!/^[01]+$/.test(gen)||gen[0]!=="1"||gen.length<2){host.innerHTML="";return;}
+  let arr=(mode==="encode"?msg+"0".repeat(gen.length-1):msg).split(""),r=gen.length-1,stages=[],stageNo=0;
+  for(let i=0;i<=arr.length-gen.length;i++){
+   if(arr[i]==="1"){
+    let before=arr.join(""),after=arr.slice();
+    for(let j=0;j<gen.length;j++)after[i+j]=after[i+j]===gen[j]?"0":"1";
+    stages.push({i,before,after:after.join(""),window:before.slice(i,i+gen.length)});
+    arr=after;stageNo++;
+   }
+  }
+  const rem=arr.slice(-r).join("");
+  let visible=stages.slice(0,Math.max(0,Math.min(stages.length,stepIndex)));
+  let last=visible.length?visible[visible.length-1]:null;
+  let row=last?last.after:(mode==="encode"?msg+"0".repeat(r):msg);
+  host.innerHTML=`<div class="diagram-title">CRC XOR long division — live trace</div>
+   <div class="diagram-caption">Generator: ${gen} · Each XOR stage removes the leading 1 of the current window. Step through to reveal the division.</div>
+   <div class="crc-stage"><strong>${last?"CURRENT DIVISION STATE":"DIVIDEND"}</strong><div class="crc-row">${row.split("").map((c,i)=>`<span class="${last&&i>=last.i&&i<last.i+gen.length?'changed':''}">${c}</span>`).join("")}</div></div>
+   <div class="xor-flow"><div class="wire"></div><div class="xor-gate">⊕ XOR</div><div class="wire"></div><div><strong style="font-size:12px">Generator ${gen}</strong><div class="diagram-caption">Bitwise XOR (1⊕1=0, 0⊕1=1)</div></div></div>
+   ${visible.map((s,i)=>`<div class="crc-stage"><strong>DIVISION STEP ${i+1} · BIT POSITION ${s.i+1}</strong><div class="crc-row">${s.before}</div><div class="crc-row" style="color:#bd5a32">XOR ${gen}</div><div class="crc-row">${s.after}</div></div>`).join("")}
+   <div class="result" style="margin-top:10px"><div class="result-label">Final remainder</div><div class="result-value">${stepIndex>=steps.length-1?rem:"Continue playback to reveal remainder"}</div></div>
+   <div class="diagram-caption">CRC is an error-detection method. A non-zero remainder at the receiver indicates an error; CRC does not locate or repair it.</div>`;
+ }
+}
+function bitsViz(str,hot=[]){$("out").innerHTML=[...str].map((c,i)=>`<span class="bit ${hot.includes(i)?'hot':'good'}">${c}</span>`).join("")}
+function runAlgo(){stepIndex=0;steps=[];let v,id;
+try{
+if(current==="intro"){let q=+ $("q").value;if(q<2||q>10)throw Error("Choose q from 2 to 10.");let a=Array.from({length:q},(_,i)=>i).join(", ");$("value").textContent=a;$("out").innerHTML=Array.from({length:q},(_,i)=>`<span class="bit">${i}</span>`).join("");steps=[`Set alphabet size q = ${q}.`,`Create q distinct symbols: {${a}}.`,`Each symbol represents one of ${q} possible values.`];}
+if(current==="radix"){let n=Number($("num").value),q=+$("q").value;if(!Number.isSafeInteger(n)||n<0||q<2||q>16)throw Error("Enter a non-negative safe integer and base 2–16.");let x=n,arr=[],trace=[];if(x===0)arr=[0];while(x>0){let r=x%q,quo=Math.floor(x/q);arr.unshift(r);trace.push(`${x} ÷ ${q} = ${quo} remainder ${r}.`);x=quo;}let result=arr.map(x=>x.toString(16).toUpperCase()).join("");$("value").textContent=result;$("out").innerHTML=arr.map(c=>`<span class="bit">${c.toString(16).toUpperCase()}</span>`).join("");steps=[...trace,`Read remainders from last to first: ${result}.`,`Therefore ${n} in base 10 = ${result} in base ${q}.`];}
+if(current==="gf"){let q=+$("q").value,a=+$("a").value,b=+$("b").value,op=$("op").value;let prime=q>=2&&Array.from({length:q-2},(_,i)=>i+2).every(x=>q%x!==0);if(!prime||q>97||a<0||a>=q||b<0||b>=q)throw Error("Use prime q (2–97) and operands from 0 to q−1.");let raw=op==="add"?a+b:op==="sub"?a-b:a*b,res=((raw%q)+q)%q,sym={add:"+",sub:"−",mul:"×"}[op];$("value").textContent=String(res);steps=[`Work in GF(${q}), so reduce every result modulo ${q}.`,`Calculate ${a} ${sym[op]} ${b} = ${raw}.`,`Reduce: ${raw} mod ${q} = ${res}.`,`Final field element: ${res}.`];}
+if(current==="distance"){let a=$("a").value.trim(),b=$("b").value.trim();if(!a||a.length!==b.length)throw Error("Enter two non-empty sequences of equal length.");let dif=[];for(let i=0;i<a.length;i++)if(a[i]!==b[i])dif.push(i);$("value").textContent=String(dif.length);$("out").innerHTML=[...a].map((c,i)=>`<span class="bit ${dif.includes(i)?'hot':'good'}">${c}</span>`).join("")+"<span style='padding:8px'>vs</span>"+[...b].map((c,i)=>`<span class="bit ${dif.includes(i)?'hot':'good'}">${c}</span>`).join("");steps=[`Compare the two sequences from left to right.`,`Different positions: ${dif.length?dif.map(i=>i+1).join(", "):"none"}.`,`Count the mismatches: ${dif.length}.`,`Hamming distance = ${dif.length}.`];}
+if(current==="crc"){let gen=$("gen").value.trim(),mode=$("mode").value,msg=mode==="encode"?$("msg").value.trim():$("recv").value.trim();if(!/^[01]+$/.test(msg)||!/^[01]+$/.test(gen)||gen[0]!=="1"||gen.length<2)throw Error("Enter binary strings; generator must start with 1 and have at least 2 bits.");let r=gen.length-1,work=mode==="encode"?msg+"0".repeat(r):msg,arr=work.split(""),trace=[];for(let i=0;i<=arr.length-gen.length;i++){if(arr[i]==="1"){let before=arr.join("");for(let j=0;j<gen.length;j++)arr[i+j]=arr[i+j]===gen[j]?"0":"1";trace.push(`At bit ${i+1}, XOR ${gen}: ${before} → ${arr.join("")}.`);}}let rem=arr.slice(-r).join("");$("value").textContent=rem;$("codeword").textContent=mode==="encode"?msg+rem:(parseInt(rem,2)===0?"Passes CRC check":"CRC check failed");steps=[`Generator length is ${gen.length}; remainder length r = ${r}.`,...(mode==="encode"?[`Append ${r} zero bits: ${work}.`]:[`Divide received word ${msg} by generator ${gen}.`]),...trace,`Remainder = ${rem}.`,mode==="encode"?`Append remainder to message: ${msg+rem}.`:(parseInt(rem,2)===0?"Zero remainder: no error detected by this CRC.":"Non-zero remainder: an error is detected.")];}
+if(current==="checksum"){let q=+$("q").value,prime=q>=2&&Array.from({length:q-2},(_,i)=>i+2).every(x=>q%x!==0),vals=$("data").value.split(",").map(x=>Number(x.trim()));if(!prime||q>97||!vals.length||vals.some(x=>!Number.isInteger(x)||x<0||x>=q))throw Error("Use prime q (2–97) and comma-separated symbols from 0 to q−1.");let sum=vals.reduce((a,b)=>a+b,0),p=((q-(sum%q))%q),cw=[...vals,p];$("value").textContent=String(p);$("codeword").textContent=cw.join(", ");steps=[`Data symbols: ${vals.join(", ")}.`,`Add the symbols: ${sum}.`,`Reduce the sum: ${sum} mod ${q} = ${sum%q}.`,`Choose p = (${q} − ${sum%q}) mod ${q} = ${p}.`,`Protected codeword: (${cw.join(", ")}).`,`Check: total ${cw.reduce((a,b)=>a+b,0)} mod ${q} = 0.`];}
+if(current==="repeat"){let n=+$("n").value,mode=$("mode").value;if(n<1||n%2===0||n>9)throw Error("Repetition factor must be a positive odd number up to 9.");let groups;if(mode==="encode"){let vals=$("msg").value.split(",").map(x=>x.trim());if(vals.some(x=>!x))throw Error("Enter comma-separated symbols.");groups=vals.map(x=>Array(n).fill(x));$("value").textContent=groups.map(g=>g.join("")).join(" | ");steps=[`Read message symbols: ${vals.join(", ")}.`,`Repeat each symbol ${n} times.`,...groups.map((g,i)=>`Symbol ${vals[i]} becomes ${g.join("")}.`),`Encoded sequence: ${groups.map(g=>g.join("")).join(" | ")}.`];}else{let raw=$("recv").value.split("|").map(g=>g.trim().split(",").map(x=>x.trim()));if(raw.some(g=>g.length!==n))throw Error(`Each received group must contain ${n} comma-separated symbols.`);groups=raw;let decoded=groups.map(g=>{let count={};g.forEach(x=>count[x]=(count[x]||0)+1);return Object.keys(count).sort((a,b)=>count[b]-count[a])[0]});$("value").textContent=decoded.join(", ");steps=[`Split received symbols into groups of ${n}.`,...groups.map((g,i)=>`Group ${i+1}: ${g.join(", ")}. Majority symbol = ${decoded[i]}.`),`Decoded message: ${decoded.join(", ")}.`];}}
+if(current==="hamming"){let mode=$("mode").value;if(mode==="encode"){let d=$("data").value.trim();if(!/^[01]{4}$/.test(d))throw Error("Enter exactly four data bits.");let b=Array(8).fill(0);[b[3],b[5],b[6],b[7]]=[...d].map(Number);b[1]=b[3]^b[5]^b[7];b[2]=b[3]^b[6]^b[7];b[4]=b[5]^b[6]^b[7];let cw=b.slice(1).join("");$("value").textContent=cw;bitsViz(cw);steps=[`Place data bits ${d} at positions 3, 5, 6 and 7.`,`p1 checks positions 1,3,5,7: p1 = ${b[1]}.`,`p2 checks positions 2,3,6,7: p2 = ${b[2]}.`,`p4 checks positions 4,5,6,7: p4 = ${b[4]}.`,`Codeword (positions 1–7): ${cw}.`];}else{let w=$("recv").value.trim();if(!/^[01]{7}$/.test(w))throw Error("Enter exactly seven received bits.");let b=[0,...w].map(Number);let s1=b[1]^b[3]^b[5]^b[7],s2=b[2]^b[3]^b[6]^b[7],s4=b[4]^b[5]^b[6]^b[7],syn=s4*4+s2*2+s1;if(syn>0&&syn<=7)b[syn]^=1;let fixed=b.slice(1).join("");$("value").textContent=fixed;bitsViz(fixed,syn?[syn-1]:[]);steps=[`Received word: ${w}.`,`Parity check p1 gives ${s1}; p2 gives ${s2}; p4 gives ${s4}.`,`Syndrome s4s2s1 = ${s4}${s2}${s1} = ${syn}.`,syn?`Assuming one bit error, flip position ${syn}.`:"Syndrome is zero; no single-bit error is indicated.",`Corrected codeword: ${fixed}.`,`Recovered data bits (positions 3,5,6,7): ${[b[3],b[5],b[6],b[7]].join("")}.`];}}
+if(current==="rs"){let n=+$("n").value,k=+$("k").value;if(!Number.isInteger(n)||!Number.isInteger(k)||k<1||n<=k)throw Error("Enter integers where n > k ≥ 1.");let parity=n-k,d=parity+1,t=Math.floor(parity/2);$("value").textContent=String(parity);steps=[`Total codeword length n = ${n}; data length k = ${k}.`,`Parity symbols = n − k = ${parity}.`,`Minimum distance d = n − k + 1 = ${d}.`,`Unknown symbol errors correctable = floor((d−1)/2) = ${t}.`,`Code rate R = k/n = ${(k/n).toFixed(3)}.`];}
+}catch(e){$("value").textContent="Check your input";$("steps").innerHTML=`<div class="note">${e.message}</div>`;return;}
+showSteps();}
+document.querySelectorAll(".navitem").forEach(b=>b.addEventListener("click",()=>setModule(b.dataset.algo)));
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>switchTab(b.dataset.tab)));
+$("filter").addEventListener("input",e=>{let q=e.target.value.toLowerCase();document.querySelectorAll(".navitem").forEach(b=>b.style.display=b.textContent.toLowerCase().includes(q)?"flex":"none")});
+$("cards").innerHTML=Object.entries(modules).map(([id,m],i)=>`<div class="module-card" data-card="${id}"><div class="ico">${["◈","q","±","≠","⊕","Σ","↻","101","✳"][i]}</div><h3>${m.title}</h3><p>${m.desc}</p></div>`).join("");
+document.querySelectorAll(".module-card").forEach(c=>c.onclick=()=>{setModule(c.dataset.card);window.scrollTo({top:0,behavior:"smooth"})});
+setModule("intro");
+
+function escapeProfile(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function initProfile(){
+ const keys=["Name","University","Program","Subject","Instructor","Project"];
+ const ids=keys.map(k=>"profile"+k);
+ ids.forEach(id=>{try{const el=$(id);if(el)el.value=localStorage.getItem("codelab_"+id)||"";}catch(e){}});
+ const apply=()=>{
+  const name=$("profileName")?.value.trim()||"CodeLab";
+  const project=$("profileProject")?.value.trim()||"Non-Binary Codes · Encoding · Decoding";
+  const university=$("profileUniversity")?.value.trim(),program=$("profileProgram")?.value.trim(),subject=$("profileSubject")?.value.trim(),instructor=$("profileInstructor")?.value.trim();
+  const detailLine=[university,program,subject,instructor].filter(Boolean).map(escapeProfile).join(" · ");
+  const brand=document.querySelector(".brand");
+  if(brand)brand.innerHTML=`<div class="logo">C</div>${escapeProfile(name)} <span style="font-weight:500;color:#80919b;font-size:12px">/ CODELAB</span>`;
+  const foot=document.querySelector("footer");
+  if(foot){const first=foot.querySelector("div strong");if(first)first.textContent=name;const cells=foot.querySelectorAll("div");if(cells[1])cells[1].innerHTML=`${escapeProfile(project)}<br>${detailLine||"Educational demonstration · Client-side calculations"}`;}
+ };
+ $("saveProfile")?.addEventListener("click",()=>{
+  ids.forEach(id=>{try{localStorage.setItem("codelab_"+id,$(id)?.value||"");}catch(e){}});
+  apply();$("profileStatus").textContent="✓ Saved in this browser. Reopen this page on this device to see your details.";
+ });
+ apply();
+}
+
+initProfile();
+</script></body></html>
